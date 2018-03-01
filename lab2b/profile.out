@@ -1,0 +1,269 @@
+Total: 760 samples
+     563  74.1%  74.1%      759  99.9% thread_run
+     111  14.6%  88.7%      111  14.6% SortedList_insert
+      83  10.9%  99.6%       83  10.9% SortedList_lookup
+       1   0.1%  99.7%        1   0.1% 0x00007ffcf3bf98c9
+       1   0.1%  99.9%        1   0.1% SortedList_length
+       1   0.1% 100.0%        1   0.1% __random_r
+       0   0.0% 100.0%        1   0.1% __GI___clock_gettime
+       0   0.0% 100.0%      759  99.9% __clone
+       0   0.0% 100.0%        1   0.1% __libc_start_main
+       0   0.0% 100.0%        1   0.1% __random
+       0   0.0% 100.0%        1   0.1% _start
+       0   0.0% 100.0%        1   0.1% main
+       0   0.0% 100.0%        1   0.1% rand
+       0   0.0% 100.0%      759  99.9% start_thread
+ROUTINE ====================== thread_run in /u/cs/ugrad/reinaldo/cs111/lab2b/lab2_list.c
+   563    759 Total samples (flat / cumulative)
+     .      .   40: void seg_f(){
+     .      .   41:     fprintf(stderr, "!!!!Segmentation fault occur!!!\n");
+     .      .   42:     exit(2);
+     .      .   43: }
+     .      .   44: 
+---
+     .      .   45: void* thread_run(void* args){
+     .      .   46:     int m_opt = 0;
+     .      .   47:     int s_opt = 0;
+     .      .   48:     int sublist_num = 0;
+     .      .   49:     int length;
+     .      .   50:     SortedListElement_t* temp;
+     .      .   51:     struct timespec wait_begin, wait_finish;
+     .      .   52:     struct thr_data* el_list = (struct thr_data*)args;
+     .      .   53:     
+     .      .   54:     if (el_list->sync_thr == 's'){
+     .      .   55:         s_opt = 1;
+     .      .   56:     }
+     .      .   57:     else if (el_list->sync_thr == 'm'){
+     .      .   58:         m_opt = 1;
+     .      .   59:     }
+     .      .   60:     
+     .      .   61:     long long* wait_time = &el_list->wait;
+     .      .   62:     
+     .      .   63:     signal(SIGSEGV, seg_f);
+     .      .   64:     for(int i = 0; i < el_list->iteration; i++){
+     .      .   65:         temp = (el_list->list_element[i]);
+     .      .   66:         const char *key = temp->key;
+     .      .   67:         sublist_num = hash(key) % el_list->list_iteration;
+     .      .   68:         if (clock_gettime(CLOCK_MONOTONIC, &wait_begin) == -1)
+     .      .   69:         {
+     .      .   70:             fprintf(stderr, "Error! Can't get wait time\n");
+     .      .   71:             exit(1);
+     .      .   72:         }
+     .      .   73:         if (s_opt)
+   330    330   74:             while(__sync_lock_test_and_set(&el_list->sub_list[sublist_num]->spin_lock, 1) == 1);
+     .      .   75:         else if (m_opt)
+     .      .   76:             pthread_mutex_lock(&el_list->sub_list[sublist_num]->lock);
+     .      .   77:         
+     .      .   78:         lock_need = lock_need + 1;
+     .      .   79:         
+     .      .   80:         if (clock_gettime(CLOCK_MONOTONIC, &wait_finish) == -1)
+     .      .   81:         {
+     .      .   82:             fprintf(stderr, "Error! Can't get finish time\n");
+     .      .   83:             exit(1);
+     .      .   84:         }
+     .      .   85:         *wait_time = *wait_time + (wait_finish.tv_sec - wait_begin.tv_sec) * BILLION + (wait_finish.tv_nsec - wait_begin.tv_nsec);
+     .      .   86:         
+     .    111   87:         SortedList_insert(el_list->sub_list[sublist_num]->list, temp);
+     .      .   88:         
+     .      .   89:         if(s_opt)
+     .      .   90:             __sync_lock_release(&el_list->sub_list[sublist_num]->spin_lock);
+     .      .   91:         else if(m_opt)
+     .      .   92:             pthread_mutex_unlock(&el_list->sub_list[sublist_num]->lock);
+     .      .   93:     }
+     .      .   94:     
+     .      .   95:     for(int i = 0; i < el_list->list_iteration; i++){
+     .      .   96:         if (clock_gettime(CLOCK_MONOTONIC, &wait_begin) == -1)
+     .      .   97:         {
+     .      .   98:             fprintf(stderr, "Error! Can't get wait time\n");
+     .      .   99:             exit(1);
+     .      .  100:         }
+     .      .  101:         if (s_opt)
+     .      .  102:             while(__sync_lock_test_and_set(&el_list->sub_list[sublist_num]->spin_lock, 1) == 1);
+     .      .  103:         else if (m_opt)
+     .      .  104:             pthread_mutex_lock(&el_list->sub_list[sublist_num]->lock);
+     .      .  105:         
+     .      .  106:         lock_need = lock_need + 1;
+     .      .  107:         
+     .      .  108:         if (clock_gettime(CLOCK_MONOTONIC, &wait_finish) == -1)
+     .      .  109:         {
+     .      .  110:             fprintf(stderr, "Error! Can't get finish time\n");
+     .      .  111:             exit(1);
+     .      .  112:         }
+     .      .  113:         *wait_time = *wait_time + (wait_finish.tv_sec - wait_begin.tv_sec) * BILLION + (wait_finish.tv_nsec - wait_begin.tv_nsec);
+     .      .  114:         
+     .      1  115:         length = length + SortedList_length(el_list->sub_list[i]->list);
+     .      .  116:         if(s_opt)
+     .      .  117:             __sync_lock_release(&el_list->sub_list[sublist_num]->spin_lock);
+     .      .  118:         else if(m_opt)
+     .      .  119:             pthread_mutex_unlock(&el_list->sub_list[sublist_num]->lock);
+     .      .  120:     }
+     .      .  121:     
+     .      .  122:     for(int i = 0; i < el_list->iteration; i++){
+     .      .  123:         temp = (el_list->list_element[i]);
+     .      .  124:         const char *new_key = temp->key;
+     .      .  125:         sublist_num = hash(new_key) % el_list->list_iteration;
+     .      .  126:         if (clock_gettime(CLOCK_MONOTONIC, &wait_begin) == -1)
+     .      .  127:         {
+     .      .  128:             fprintf(stderr, "Error! Can't get wait time\n");
+     .      .  129:             exit(1);
+     .      .  130:         }
+     .      .  131:         if (s_opt)
+   230    230  132:             while(__sync_lock_test_and_set(&el_list->sub_list[sublist_num]->spin_lock, 1) == 1);
+     .      .  133:         else if (m_opt)
+     .      .  134:             pthread_mutex_lock(&el_list->sub_list[sublist_num]->lock);
+     .      .  135:         
+     1      1  136:         lock_need = lock_need + 1;
+     .      .  137:         
+     .      1  138:         if (clock_gettime(CLOCK_MONOTONIC, &wait_finish) == -1)
+     .      .  139:         {
+     .      .  140:             fprintf(stderr, "Error! Can't get finish time\n");
+     .      .  141:             exit(1);
+     .      .  142:         }
+     .      .  143:         *wait_time = *wait_time + (wait_finish.tv_sec - wait_begin.tv_sec) * BILLION + (wait_finish.tv_nsec - wait_begin.tv_nsec);
+     .      .  144:         
+     1     84  145:         temp = SortedList_lookup(el_list->sub_list[sublist_num]->list, el_list->list_element[i]->key);
+     .      .  146:         int n = SortedList_delete(temp);
+     .      .  147:         if (n == 1){
+     .      .  148:             fprintf(stderr, "Error! List is corrupted!\n");
+     .      .  149:             exit(2);
+     .      .  150:         }
+     .      .  151:         
+     .      .  152:         if(s_opt)
+     1      1  153:             __sync_lock_release(&el_list->sub_list[sublist_num]->spin_lock);
+     .      .  154:         else if(m_opt)
+     .      .  155:             pthread_mutex_unlock(&el_list->sub_list[sublist_num]->lock);
+     .      .  156:     }
+     .      .  157:     pthread_exit(0);
+---
+     .      .  158: }
+     .      .  159: 
+     .      .  160: int main(int argc, char* argv[]){
+     .      .  161:     struct timespec start, end;
+     .      .  162:     int opt;
+ROUTINE ====================== thread_run in /u/cs/ugrad/reinaldo/cs111/lab2b/lab2_list.c
+   563    759 Total samples (flat / cumulative)
+     .      .   40: void seg_f(){
+     .      .   41:     fprintf(stderr, "!!!!Segmentation fault occur!!!\n");
+     .      .   42:     exit(2);
+     .      .   43: }
+     .      .   44: 
+---
+     .      .   45: void* thread_run(void* args){
+     .      .   46:     int m_opt = 0;
+     .      .   47:     int s_opt = 0;
+     .      .   48:     int sublist_num = 0;
+     .      .   49:     int length;
+     .      .   50:     SortedListElement_t* temp;
+     .      .   51:     struct timespec wait_begin, wait_finish;
+     .      .   52:     struct thr_data* el_list = (struct thr_data*)args;
+     .      .   53:     
+     .      .   54:     if (el_list->sync_thr == 's'){
+     .      .   55:         s_opt = 1;
+     .      .   56:     }
+     .      .   57:     else if (el_list->sync_thr == 'm'){
+     .      .   58:         m_opt = 1;
+     .      .   59:     }
+     .      .   60:     
+     .      .   61:     long long* wait_time = &el_list->wait;
+     .      .   62:     
+     .      .   63:     signal(SIGSEGV, seg_f);
+     .      .   64:     for(int i = 0; i < el_list->iteration; i++){
+     .      .   65:         temp = (el_list->list_element[i]);
+     .      .   66:         const char *key = temp->key;
+     .      .   67:         sublist_num = hash(key) % el_list->list_iteration;
+     .      .   68:         if (clock_gettime(CLOCK_MONOTONIC, &wait_begin) == -1)
+     .      .   69:         {
+     .      .   70:             fprintf(stderr, "Error! Can't get wait time\n");
+     .      .   71:             exit(1);
+     .      .   72:         }
+     .      .   73:         if (s_opt)
+   330    330   74:             while(__sync_lock_test_and_set(&el_list->sub_list[sublist_num]->spin_lock, 1) == 1);
+     .      .   75:         else if (m_opt)
+     .      .   76:             pthread_mutex_lock(&el_list->sub_list[sublist_num]->lock);
+     .      .   77:         
+     .      .   78:         lock_need = lock_need + 1;
+     .      .   79:         
+     .      .   80:         if (clock_gettime(CLOCK_MONOTONIC, &wait_finish) == -1)
+     .      .   81:         {
+     .      .   82:             fprintf(stderr, "Error! Can't get finish time\n");
+     .      .   83:             exit(1);
+     .      .   84:         }
+     .      .   85:         *wait_time = *wait_time + (wait_finish.tv_sec - wait_begin.tv_sec) * BILLION + (wait_finish.tv_nsec - wait_begin.tv_nsec);
+     .      .   86:         
+     .    111   87:         SortedList_insert(el_list->sub_list[sublist_num]->list, temp);
+     .      .   88:         
+     .      .   89:         if(s_opt)
+     .      .   90:             __sync_lock_release(&el_list->sub_list[sublist_num]->spin_lock);
+     .      .   91:         else if(m_opt)
+     .      .   92:             pthread_mutex_unlock(&el_list->sub_list[sublist_num]->lock);
+     .      .   93:     }
+     .      .   94:     
+     .      .   95:     for(int i = 0; i < el_list->list_iteration; i++){
+     .      .   96:         if (clock_gettime(CLOCK_MONOTONIC, &wait_begin) == -1)
+     .      .   97:         {
+     .      .   98:             fprintf(stderr, "Error! Can't get wait time\n");
+     .      .   99:             exit(1);
+     .      .  100:         }
+     .      .  101:         if (s_opt)
+     .      .  102:             while(__sync_lock_test_and_set(&el_list->sub_list[sublist_num]->spin_lock, 1) == 1);
+     .      .  103:         else if (m_opt)
+     .      .  104:             pthread_mutex_lock(&el_list->sub_list[sublist_num]->lock);
+     .      .  105:         
+     .      .  106:         lock_need = lock_need + 1;
+     .      .  107:         
+     .      .  108:         if (clock_gettime(CLOCK_MONOTONIC, &wait_finish) == -1)
+     .      .  109:         {
+     .      .  110:             fprintf(stderr, "Error! Can't get finish time\n");
+     .      .  111:             exit(1);
+     .      .  112:         }
+     .      .  113:         *wait_time = *wait_time + (wait_finish.tv_sec - wait_begin.tv_sec) * BILLION + (wait_finish.tv_nsec - wait_begin.tv_nsec);
+     .      .  114:         
+     .      1  115:         length = length + SortedList_length(el_list->sub_list[i]->list);
+     .      .  116:         if(s_opt)
+     .      .  117:             __sync_lock_release(&el_list->sub_list[sublist_num]->spin_lock);
+     .      .  118:         else if(m_opt)
+     .      .  119:             pthread_mutex_unlock(&el_list->sub_list[sublist_num]->lock);
+     .      .  120:     }
+     .      .  121:     
+     .      .  122:     for(int i = 0; i < el_list->iteration; i++){
+     .      .  123:         temp = (el_list->list_element[i]);
+     .      .  124:         const char *new_key = temp->key;
+     .      .  125:         sublist_num = hash(new_key) % el_list->list_iteration;
+     .      .  126:         if (clock_gettime(CLOCK_MONOTONIC, &wait_begin) == -1)
+     .      .  127:         {
+     .      .  128:             fprintf(stderr, "Error! Can't get wait time\n");
+     .      .  129:             exit(1);
+     .      .  130:         }
+     .      .  131:         if (s_opt)
+   230    230  132:             while(__sync_lock_test_and_set(&el_list->sub_list[sublist_num]->spin_lock, 1) == 1);
+     .      .  133:         else if (m_opt)
+     .      .  134:             pthread_mutex_lock(&el_list->sub_list[sublist_num]->lock);
+     .      .  135:         
+     1      1  136:         lock_need = lock_need + 1;
+     .      .  137:         
+     .      1  138:         if (clock_gettime(CLOCK_MONOTONIC, &wait_finish) == -1)
+     .      .  139:         {
+     .      .  140:             fprintf(stderr, "Error! Can't get finish time\n");
+     .      .  141:             exit(1);
+     .      .  142:         }
+     .      .  143:         *wait_time = *wait_time + (wait_finish.tv_sec - wait_begin.tv_sec) * BILLION + (wait_finish.tv_nsec - wait_begin.tv_nsec);
+     .      .  144:         
+     1     84  145:         temp = SortedList_lookup(el_list->sub_list[sublist_num]->list, el_list->list_element[i]->key);
+     .      .  146:         int n = SortedList_delete(temp);
+     .      .  147:         if (n == 1){
+     .      .  148:             fprintf(stderr, "Error! List is corrupted!\n");
+     .      .  149:             exit(2);
+     .      .  150:         }
+     .      .  151:         
+     .      .  152:         if(s_opt)
+     1      1  153:             __sync_lock_release(&el_list->sub_list[sublist_num]->spin_lock);
+     .      .  154:         else if(m_opt)
+     .      .  155:             pthread_mutex_unlock(&el_list->sub_list[sublist_num]->lock);
+     .      .  156:     }
+     .      .  157:     pthread_exit(0);
+---
+     .      .  158: }
+     .      .  159: 
+     .      .  160: int main(int argc, char* argv[]){
+     .      .  161:     struct timespec start, end;
+     .      .  162:     int opt;

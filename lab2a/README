@@ -1,0 +1,80 @@
+NAME: Reinaldo Daniswara
+EMAIL: rdaniswara@g.ucla.edu
+ID: 604840665
+
+Files:
+Makefile: build, clean, zip the program.
+README: this file about explanation of the file, sources, and answers of the question.
+SortedList.c : source file for the implementation of sorting.
+SortedList.h : header file of sortedlist
+lab2_list.c : source file for sorted list
+lab2_add.c : source file for add
+lab2_add-[1-5].png : captured of the graph for add
+lab2_list-[1-40].png: captures of the graph for list
+*.csv file : file to generate gnuplot
+.gp file: program to generate graph
+
+
+Clock sources:
+https://users.pja.edu.pl/~jms/qnx/help/watcom/clibref/qnx/clock_gettime.html
+https://www.cs.rutgers.edu/~pxk/416/notes/c-tutorials/gettime.html
+
+Thread source:
+https://computing.llnl.gov/tutorials/pthreads/
+
+Seldomly, my make tests is hanging because of the sample.sh file. It hanging because I put all the test file from TA
+and even remove the minus sign. But it is barely happens. If it happens just run the test again and be patience. 
+QUESTION 2.1.1 - causing conflicts:
+Why does it take many iterations before errors are seen?
+In this project, we are analyzing about the data race condition, which is more that one thread tries to access and modify
+value of one variable. More iterations we have will lead us into a greater chance that the error occurs because 
+there will be more threads trying to access the critical session of the code.  If the value of one pointer is changed by other threads
+of course it will create an error due to the data racing conditions.
+Why does a significantly smaller number of iterations so seldom fail?
+This question is related to the previous question. If many iterations make more error, than by the linear relation, 
+smaller iteration will also cause less error because it does not contain much threads to cause an error. 
+
+QUESTION 2.1.2 - cost of yielding:
+Why are the --yield runs so much slower?
+When we use —yield options, it means that we force the thread to wait by move the thread into the back of the queue. Using
+this option will activate a context switch, which is expensive and take times.
+As a result, this movement condition will result in decreasing of low performance.
+
+Where is the additional time going?
+The additional time is going to the attempt of move this thread via context switch, which result in a decrease in performance 
+
+Is it possible to get valid per-operation timings if we are using the --yield option
+It is going to be hard to get valid per-operation timings if we are using —yield option because multiple
+yield may be able to run at the same time. In addition, time difference that we have also included the context switch
+that was performed. Thus it is hard to get a valid per-operation timings. 
+
+QUESTION 2.1.3 - measurement errors:
+Why does the average cost per operation drop with increasing iterations?
+When the number of iterations are small, the program will only busy creating a thread. In correlation, the average cost per operation 
+will drop when iterations is higher because creating threads will no longer necessary.
+
+If the cost per iteration is a function of the number of iterations, how do we know how many iterations to run (or what the "correct" cost is)?
+Based on question the previous question, in order to increase the accuracy of the result, it is better to use a large number of iterations. 
+
+QUESTION 2.1.4 - costs of serialization:
+Why do all of the options perform similarly for low numbers of threads?
+When the options performing a low number of threads, it will perform similarly because they don’t need to wait for the lock.
+They are all still running in a different CPU, and no need to acquire lock. Thus, they are all still perform similarly. 
+
+Why do the three protected operations slow down as the number of threads rises?
+The reason is similar with previous question. As the result of number of threads increase, all option requires lock to enter the
+critical session. Thus, there will be a waiting time to acquire the lock. Thus, all protected operations will slow down.
+
+
+QUESTION  2.2.1 - scalability of Mutex
+As the number of threads increases, it seems that the graph is showing a increase in cost per operations. The general shape of the graph is 
+flatten at the end. This may caused because of mutex will put threads to sleep when they are waiting.
+The main difference is for graph add, the cost of operation is less than the graph list.
+The reason is because in add, the operation still simple and doesn’t require more lock. However, in list it is a bit more complicated
+thus it needs more expensive lock and operation which cause the cause of operation is increasing. 
+
+QUESTION 2.2.2 - scalability of spin locks
+They all increasing linearly as the number of threads increase because when threads is larger, each of them require keys. It seems that the cost is
+larger for spin lock at the end because when the thread is waiting, it will keep spinning. While mutex will make the thread sleep. As a result,
+spin lock will waste the CPU cycle while it is waiting. Thus, it is more expensive that mutex. 
+

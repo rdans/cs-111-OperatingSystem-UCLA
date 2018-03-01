@@ -1,0 +1,13 @@
+NAME: Reinaldo Daniswara
+EMAIL: rdaniswara@g.ucla.edu
+ID: 604840665
+
+Deliverables:
+lab4b.c : C source files for an embedded application that builds and runs (with no errors or warnings) on a Beaglebone.
+Makefile : to build and test your application
+a README file containing : file submission
+
+Source:
+implementation of the code based on 
+for setting up the temperature sensor: http://wiki.seeed.cc/Grove-Temperature_Sensor_V1.2/
+mraa: https://iotdk.intel.com/docs/master/mraa/

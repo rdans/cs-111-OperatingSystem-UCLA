@@ -1,0 +1,22 @@
+NAME: Reinaldo Daniswara
+EMAIL: rdaniswara@g.ucla.edu
+ID: 604840665
+
+Sources:
+	Lab4b.c
+	https://www.openssl.org/docs/manmaster/man7/ssl.html
+
+Deliverable:
+	
+lab4c_tcp.c: source file that build and run clean and no warning on Beaglebone for tcp connection
+
+lab4c_tls.c: source file that build and run clean and no warning on Beaglebone for tls connection
+
+Makefile: to build and run my applications with options
+	default: build both versions of my program separately (compiling with the -Wall and -Wextra options).
+	clean: delete all programs and output created by the Makefile and restore the directory to its freshly untarred state.
+	dist: create the deliverable tarball.
+	README: this file about sources and deliverable information.
+	tcp: to run executable with tcp connection (make it easy to test)
+	tls: to run executable with tls connection (make it easy to test)
+check: run the sanity check

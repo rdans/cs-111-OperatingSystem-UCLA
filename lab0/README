@@ -1,0 +1,28 @@
+NAME: Reinaldo Daniswara
+EMAIL: rdaniswara@g.ucla.edu
+ID: 604840665
+
+Project 0 - Warmup Project
+
+This file includes
+     - lab0.c
+       C source file that copies standard input to standard output with other errors handler.
+     - Makefile
+       To build the program, create a tarball, clean and remove file, and smoke test
+     - backtrace.png and breakpoint.png
+       images file to show the segmentation fault with the variables, which is a null pointer
+       
+Learning sources:
+Help from TA, and discussion session!
+Help understand and write the long_options[] : 
+     http://man7.org/linux/man-pages/man3/getopt.3.html
+
+Smoke test
+      1. For --input
+      	 Generate an input.txt file than copy it to the output.txt
+      2. For --output
+      	 Check if the input.txt and output.txt have a different content.
+      3. Invalid Argument
+      	 Check if user input a wrong argument.
+      4. Catch and signal
+      	 Check if it trigers the segmentation fault or not. 

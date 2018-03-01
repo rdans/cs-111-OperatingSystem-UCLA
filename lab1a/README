@@ -1,0 +1,20 @@
+NAME: Reinaldo Daniswara
+EMAIL: rdaniswara@g.ucla.edu
+ID: 604840665
+
+This tarball of project Lab1a - Terminal I/O and Inter-Process Communication
+contains 3 file
+lab1a.c -- a C source file to create this project
+Makefile -- a file to build this project
+README -- any information about this project
+
+In building the C source file, I did a couple research and some of the code that I implemented are
+originally from this helpful website and some examples of linux man page.
+
+Source:
+Fork: http://www.csl.mtu.edu/cs4411.ck/www/NOTES/process/fork/create.html
+Noncanon: https://www.gnu.org/software/libc/manual/html_node/Noncanon-Example.html
+Pipe : http://www.ece.eng.wayne.edu/~gchen/ece5650/lecture2.pdf
+Poll: http://www.linux-mag.com/id/357/
+Waited : https://support.sas.com/documentation/onlinedoc/sasc/doc/lr2/waitpid.htm
+execvp : http://www.cs.ecu.edu/karl/4630/sum01/example1.html
